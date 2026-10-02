@@ -1,0 +1,22 @@
+[Unit]
+Description=OctaSpace Host Agent (community) — rig monitoring/control API for the OctaSpace Hub Host Console
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# Adjust the paths: the agent is a single Python 3 file, stdlib only.
+ExecStart=/usr/bin/python3 /opt/octa-host-agent/agent.py --config /etc/octa-host-agent/config.json
+Restart=on-failure
+RestartSec=5
+# The agent needs rights for the actions you want it to perform:
+#  - reading nvidia-smi: fine as any user in the 'video' group
+#  - systemctl start/stop of the node unit + poweroff/reboot: run as root,
+#    or add a polkit rule / sudoers entry for those specific commands.
+# Running as root is simplest on a dedicated rig; a locked-down user is
+# safer. Decide consciously — this service can power off the machine.
+User=root
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target
